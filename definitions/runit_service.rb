@@ -159,12 +159,12 @@ define :runit_service, :directory => nil, :only_if => false, :finish_script => f
   ruby_block "supervise_#{params[:name]}_pipes_set_ownership" do
     block do
       Chef::Log.debug("Setting ownership on named pipes in '#{sv_dir_name}/supervise/'...")
-      ::Dir.glob("#{sv_dir_name}/supervise/*").each do | supervise_file | 
+      ::Dir.glob("#{sv_dir_name}/supervise/*").each do | supervise_file |
         file_resource = Chef::Resource::File.new(supervise_file)
         file_resource.owner(params[:owner])
         file_resource.group(params[:group])
 
-        access_control = Chef::FileAccessControl.new(file_resource, file_resource.path)
+        access_control = Chef::FileAccessControl.new(Chef::Resource::File.new(supervise_file), file_resource, nil)
         Chef::Log.debug("Setting ownership for named pipe '#{supervise_file}' to #{file_resource.owner}:#{file_resource.group}...")
         access_control.set_all
       end
